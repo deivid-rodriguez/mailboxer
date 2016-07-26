@@ -20,6 +20,19 @@ describe Mailboxer::Message do
         expect(errors).to eq(["can't be blank"])
       end
     end
+
+    describe "empty recipients" do
+      before do
+        @receipt1 = @entity1.send_message([],"Body","Subject")
+        @message1 = @receipt1.notification
+      end
+
+      it "should add errors to the created notification" do
+        errors = @message1.errors['recipients']
+
+        expect(errors).to eq(['needs at least one recipient'])
+      end
+    end
   end
 
   context "after send" do

@@ -5,6 +5,8 @@ class Mailboxer::Message < Mailboxer::Notification
   belongs_to :conversation, :autosave => true
   validates_presence_of :sender
 
+  validate :at_least_one_recipient
+
   class_attribute :on_deliver_callback
   protected :on_deliver_callback
   scope :conversation, lambda { |conversation|
@@ -45,5 +47,15 @@ class Mailboxer::Message < Mailboxer::Notification
       on_deliver_callback.call(self) if on_deliver_callback
     end
     sender_receipt
+  end
+
+  private
+
+  def at_least_one_recipient
+    return true unless recipients.count == 0 ||
+                       (recipients.count == 1 && recipients.first == sender)
+
+    errors.add(:recipients, 'needs at least one recipient')
+    false
   end
 end
